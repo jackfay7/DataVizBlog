@@ -1,0 +1,17 @@
+---
+title: "Test"
+author: "Jack Fay"
+date: "2024-01-31"
+categories: [news, code, analysis]
+image: "image.jpg"
+---
+
+```{r}
+#| warning: false
+library(palmerpenguins)
+library(tidyverse)
+ggplot(data = penguins, 
+       aes(x = bill_length_mm))+
+  geom_histogram()
+```
+
