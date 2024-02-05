@@ -1,6 +1,6 @@
 ---
 title: "Welcome To My Blog"
-author: "Tristan O'Malley"
+author: "Jack Fay"
 date: "2024-01-28"
 categories: [news]
 ---
