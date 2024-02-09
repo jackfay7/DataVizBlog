@@ -11,7 +11,7 @@ wines <- read_csv("data/wines.csv")
 ## Introduction
 I am working with the `wines.csv` data set from the data folder provided for this course. There ae 6497 observations and 14 variables in the data set. Specifically, I am interested in `alcohol` and `density`, and how the relationship differs by `type` of wine. My central question is whether or not this relationship will depend on the type of wine (white or red). Before altering the data set, the `density` and `alcohol` appear to have a strong negative association (r = -0.71), yet we will examine the intricacies behind this correlation.
 
-```{r, echo = FALSE}
+```{r, include = FALSE}
 # investigating relationships
 library(corrplot)
 
