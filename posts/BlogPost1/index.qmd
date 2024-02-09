@@ -5,7 +5,8 @@ date: "2024-02-9"
 ---
 ```{r, include = FALSE}
 library(tidyverse)
-wines <- read_csv("data/wines.csv")
+library(here)
+wines <- here::here(read_csv("data/wines.csv"))
 ```
 
 ## Introduction
