@@ -26,7 +26,7 @@ cor(wines$alcohol, wines$density)
 ```
 
 ## Primary Visualizations
-```{r}
+```{r, echo=FALSE}
 wine_outliers <- wines%>%
   filter(density > 1.005)
 
@@ -41,7 +41,7 @@ ggplot(data = wines,
 ```
 This initial scatterplot shows a negative relationship between density and alcohol percentage with extreme curvature. The two clear outliers (denoted by red circles), make the plot visually unappealing as the points following the common trend are clumped together on the left side. 
 
-```{r}
+```{r, echo=FALSE}
 # Removing outliers
 wines_refined <- wines%>%
   filter(density < 1.005)
@@ -57,7 +57,7 @@ ggplot(data = wines_refined,
 Here, we see the same plot as above, yet without the two outlier data points seen previously. Visually, the plot is vastly improved and it has a much more realistic smoother that represents the trend with higher accuracy. Though we have removed the most extreme cases, we still see a moderate degree of curvature in the relationship. 
 
 
-```{r}
+```{r, echo=FALSE}
 # Scatterplot colored by type 
 ggplot(data = wines_refined, 
        aes(x = density, y = alcohol, color = type))+
@@ -74,7 +74,7 @@ ggplot(data = wines_refined,
 In this plot, the data points are colored by type (red or white) and have separate respective smoother lines. Based on this visualization, it appears that red wines have higher alcohol percentages on average than white wines. With that being said, the relationships exhibited by the slopes of the smoothers appear relatively similar. There are certainly some differences throughout the span of the plot, but generally both types trend down before flattening out just before the density of 1.000. 
 
 
-```{r}
+```{r, echo=FALSE}
 # Showing scatterplots separately 
 ggplot(data = wines_refined, 
        aes(x = density, y = alcohol))+
