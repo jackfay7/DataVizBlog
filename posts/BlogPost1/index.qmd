@@ -3,9 +3,6 @@ title: "Blog Post #1"
 author: "Jack Fay"
 date: "2024-02-9"
 ---
-
-
-
 ```{r, include = FALSE}
 library(tidyverse)
 wines <- read_csv("data/wines.csv")
