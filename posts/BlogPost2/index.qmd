@@ -1,0 +1,73 @@
+---
+title: "Blog Post 2"
+---
+
+```{r, include = F}
+library(tidyverse)
+library(maps)
+```
+## Introduction
+The data set that I am using for this post is titled `life_expectancy.csv`, and  comes from the GitHub repository `tidytuesday`. It is an update to a former global life expectancy data set and the source is from United Nations World Population Prospects (2022); Human Mortality Database (2023); Zijdeman, Richard and Filipa Ribeira da Silva (2015), Life Expectancy at Birth (Total); Riley, J.C. (2005), Estimates of Regional and Global Life Expectancy 1800-2001, Population and Development Review, 31: 537-543. Minor processing by Our World in Data. There are 20755 total observations in the data set, and I will be looking at life expectancy by country and throughout time. I joined a second basic data set to make a larger data set that had a variable to group countries by continents. My question of interest is how life expectancy has changed by continent since 1850. The first plot will just show the life expectancy of each country in 2021 in map format, before I switch the focus to change over time.
+
+Link: https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-12-05/readme.md 
+
+
+
+
+```{r, echo = F }
+df <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-12-05/life_expectancy.csv")
+df1<- df%>%
+  filter(Year == 2021)
+
+continents<- read_csv("posts/BlogPost2/data/CountriesContinents.csv")
+
+df1 <- inner_join(continents, df1, by = c("Country" = "Entity"))
+
+
+
+world_df <- map_data("world")
+
+world_df <- world_df %>%
+  mutate(region = ifelse(region == "USA", "United States", region))
+
+world_full <- left_join(world_df, df1, by = c("region" = "Country"))
+  
+
+
+ggplot(data = world_full,
+       aes(x = long, y = lat, group = group))+
+  geom_polygon(aes(fill = LifeExpectancy))+
+  coord_map(projection = "mercator", xlim = c(-180, 180))+
+  scale_fill_viridis_c()+
+  labs(title = "Life Expectancy by Country 2021")
+```
+This first plot displays the average life expectancy of each country in 2021, with lighter colors representing higher life expectancy. 
+It appears that Australia may be the highest, with countries such as Canada coming in close. 
+
+```{r, echo = F}
+full_df<- left_join(continents, df, by = c("Country" = "Entity"))%>%
+  na.omit()%>%
+  filter(Continent != "Antartica")%>%
+  filter(Year > 1850)
+
+
+ggplot(data = full_df, 
+       aes(x = Year, y = LifeExpectancy))+
+  geom_line(color = "gray", 
+            aes(group = Country))+
+  geom_smooth(aes(group = Continent))+
+  facet_wrap(~reorder(Continent, LifeExpectancy))+
+  theme_minimal()
+```
+This plot focuses on the change in life expectancy over time and groups the countries into the continents to which they respectively belong. The blue curve represents the average for the continent with individual countries in the background. 
+
+
+## Conclusion and Wrap-Up
+One of the flaws with the approach of the first plot is that you cannot see change over time in life expectancy for these countries. The second plot does a better job of accomplishing this, yet there are so many countries in each continent it is hard to look at the lines behind the average. I think moving farward, it would be better to subset the data to include fewer countries or just focus on one continent. 
+
+
+## Connection to Class Ideas
+At the end of your write-up, you should connect your visualization(s) to ideas from class. In what ways would you argue your visualization(s) are effective ways of communicating information?
+
+
+I would say my visualizations are effective because the first one just shows the data for a specific year on a map. The map allows you to compare the values geographically, however, if you are trying to show change over time it does not make as much sense. For that reason, I switched my approach and showed how average life expectancys by continent change throughout time. You cannot see the individual countries as well as in the first plot, but it conveys far more information. 
