@@ -56,11 +56,39 @@
     "text": "This is the first post in a Quarto blog. Welcome!\n\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
   },
   {
+    "objectID": "posts/BlogPost2/index.html",
+    "href": "posts/BlogPost2/index.html",
+    "title": "Blog Post 2",
+    "section": "",
+    "text": "The data set that I am using for this post is titled life_expectancy.csv, and comes from the GitHub repository tidytuesday. It is an update to a former global life expectancy data set and the source is from United Nations World Population Prospects (2022); Human Mortality Database (2023); Zijdeman, Richard and Filipa Ribeira da Silva (2015), Life Expectancy at Birth (Total); Riley, J.C. (2005), Estimates of Regional and Global Life Expectancy 1800-2001, Population and Development Review, 31: 537-543. Minor processing by Our World in Data. There are 20755 total observations in the data set, and I will be looking at life expectancy by country and throughout time. I joined a second basic data set to make a larger data set that had a variable to group countries by continents. My question of interest is how life expectancy has changed by continent since 1850. The first plot will just show the life expectancy of each country in 2021 in map format, before I switch the focus to change over time.\nLink: https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-12-05/readme.md\n\n\nRows: 20755 Columns: 4\n── Column specification ────────────────────────────────────────────────────────\nDelimiter: \",\"\nchr (2): Entity, Code\ndbl (2): Year, LifeExpectancy\n\nℹ Use `spec()` to retrieve the full column specification for this data.\nℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.\nRows: 286 Columns: 2\n── Column specification ────────────────────────────────────────────────────────\nDelimiter: \",\"\nchr (2): Country, Continent\n\nℹ Use `spec()` to retrieve the full column specification for this data.\nℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.\n\n\n\n\n\nThis first plot displays the average life expectancy of each country in 2021, with lighter colors representing higher life expectancy. It appears that Australia may be the highest, with countries such as Canada coming in close.\n\n\n`geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = \"cs\")'\n\n\n\n\n\nThis plot focuses on the change in life expectancy over time and groups the countries into the continents to which they respectively belong. The blue curve represents the average for the continent with individual countries in the background."
+  },
+  {
+    "objectID": "posts/BlogPost2/index.html#introduction",
+    "href": "posts/BlogPost2/index.html#introduction",
+    "title": "Blog Post 2",
+    "section": "",
+    "text": "The data set that I am using for this post is titled life_expectancy.csv, and comes from the GitHub repository tidytuesday. It is an update to a former global life expectancy data set and the source is from United Nations World Population Prospects (2022); Human Mortality Database (2023); Zijdeman, Richard and Filipa Ribeira da Silva (2015), Life Expectancy at Birth (Total); Riley, J.C. (2005), Estimates of Regional and Global Life Expectancy 1800-2001, Population and Development Review, 31: 537-543. Minor processing by Our World in Data. There are 20755 total observations in the data set, and I will be looking at life expectancy by country and throughout time. I joined a second basic data set to make a larger data set that had a variable to group countries by continents. My question of interest is how life expectancy has changed by continent since 1850. The first plot will just show the life expectancy of each country in 2021 in map format, before I switch the focus to change over time.\nLink: https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-12-05/readme.md\n\n\nRows: 20755 Columns: 4\n── Column specification ────────────────────────────────────────────────────────\nDelimiter: \",\"\nchr (2): Entity, Code\ndbl (2): Year, LifeExpectancy\n\nℹ Use `spec()` to retrieve the full column specification for this data.\nℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.\nRows: 286 Columns: 2\n── Column specification ────────────────────────────────────────────────────────\nDelimiter: \",\"\nchr (2): Country, Continent\n\nℹ Use `spec()` to retrieve the full column specification for this data.\nℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.\n\n\n\n\n\nThis first plot displays the average life expectancy of each country in 2021, with lighter colors representing higher life expectancy. It appears that Australia may be the highest, with countries such as Canada coming in close.\n\n\n`geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = \"cs\")'\n\n\n\n\n\nThis plot focuses on the change in life expectancy over time and groups the countries into the continents to which they respectively belong. The blue curve represents the average for the continent with individual countries in the background."
+  },
+  {
+    "objectID": "posts/BlogPost2/index.html#conclusion-and-wrap-up",
+    "href": "posts/BlogPost2/index.html#conclusion-and-wrap-up",
+    "title": "Blog Post 2",
+    "section": "Conclusion and Wrap-Up",
+    "text": "Conclusion and Wrap-Up\nOne of the flaws with the approach of the first plot is that you cannot see change over time in life expectancy for these countries. The second plot does a better job of accomplishing this, yet there are so many countries in each continent it is hard to look at the lines behind the average. I think moving farward, it would be better to subset the data to include fewer countries or just focus on one continent."
+  },
+  {
+    "objectID": "posts/BlogPost2/index.html#connection-to-class-ideas",
+    "href": "posts/BlogPost2/index.html#connection-to-class-ideas",
+    "title": "Blog Post 2",
+    "section": "Connection to Class Ideas",
+    "text": "Connection to Class Ideas\nAt the end of your write-up, you should connect your visualization(s) to ideas from class. In what ways would you argue your visualization(s) are effective ways of communicating information?\nI would say my visualizations are effective because the first one just shows the data for a specific year on a map. The map allows you to compare the values geographically, however, if you are trying to show change over time it does not make as much sense. For that reason, I switched my approach and showed how average life expectancys by continent change throughout time. You cannot see the individual countries as well as in the first plot, but it conveys far more information."
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "DataVizBlog",
     "section": "",
-    "text": "Blog Post #1\n\n\n\n\n\n\n\n\n\n\n\n\nFeb 9, 2024\n\n\nJack Fay\n\n\n\n\n\n\n  \n\n\n\n\nPost With Code\n\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\n\n\nJan 31, 2024\n\n\nJack Fay\n\n\n\n\n\n\n  \n\n\n\n\nTest\n\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\n\n\nJan 31, 2024\n\n\nJack Fay\n\n\n\n\n\n\n  \n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\n\n\nJan 28, 2024\n\n\nJack Fay\n\n\n\n\n\n\nNo matching items"
+    "text": "Blog Post 2\n\n\n\n\n\n\n\n\n\n\n \n\n\n\n\n  \n\n\n\n\nBlog Post #1\n\n\n\n\n\n\n\n\n\n\n\n\nFeb 9, 2024\n\n\nJack Fay\n\n\n\n\n\n\n  \n\n\n\n\nPost With Code\n\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\n\n\nJan 31, 2024\n\n\nJack Fay\n\n\n\n\n\n\n  \n\n\n\n\nTest\n\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\n\n\nJan 31, 2024\n\n\nJack Fay\n\n\n\n\n\n\n  \n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\n\n\nJan 28, 2024\n\n\nJack Fay\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "about.html",

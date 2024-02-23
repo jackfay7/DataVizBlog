@@ -19,7 +19,7 @@ df <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/ma
 df1<- df%>%
   filter(Year == 2021)
 
-continents<- read_csv("posts/BlogPost2/data/CountriesContinents.csv")
+continents<- read_csv("data/CountriesContinents.csv")
 
 df1 <- inner_join(continents, df1, by = c("Country" = "Entity"))
 
@@ -67,7 +67,4 @@ One of the flaws with the approach of the first plot is that you cannot see chan
 
 
 ## Connection to Class Ideas
-At the end of your write-up, you should connect your visualization(s) to ideas from class. In what ways would you argue your visualization(s) are effective ways of communicating information?
-
-
 I would say my visualizations are effective because the first one just shows the data for a specific year on a map. The map allows you to compare the values geographically, however, if you are trying to show change over time it does not make as much sense. For that reason, I switched my approach and showed how average life expectancys by continent change throughout time. You cannot see the individual countries as well as in the first plot, but it conveys far more information. 
