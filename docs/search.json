@@ -1,59 +1,38 @@
 [
   {
-    "objectID": "posts/post-with-code/index.html",
-    "href": "posts/post-with-code/index.html",
-    "title": "Post With Code",
-    "section": "",
-    "text": "This is a post with executable code:\n\n1 + 1 + 1 + 1\n\n[1] 4"
-  },
-  {
     "objectID": "posts/BlogPost1/index.html",
     "href": "posts/BlogPost1/index.html",
-    "title": "Blog Post #1",
+    "title": "Blog Post 1",
     "section": "",
     "text": "I am working with the wines.csv data set from the data folder provided for this course. There ae 6497 observations and 14 variables in the data set. Specifically, I am interested in alcohol and density, and how the relationship differs by type of wine. My central question is whether or not this relationship will depend on the type of wine (white or red). Before altering the data set, the density and alcohol appear to have a strong negative association (r = -0.71), yet we will examine the intricacies behind this correlation."
   },
   {
     "objectID": "posts/BlogPost1/index.html#introduction",
     "href": "posts/BlogPost1/index.html#introduction",
-    "title": "Blog Post #1",
+    "title": "Blog Post 1",
     "section": "",
     "text": "I am working with the wines.csv data set from the data folder provided for this course. There ae 6497 observations and 14 variables in the data set. Specifically, I am interested in alcohol and density, and how the relationship differs by type of wine. My central question is whether or not this relationship will depend on the type of wine (white or red). Before altering the data set, the density and alcohol appear to have a strong negative association (r = -0.71), yet we will examine the intricacies behind this correlation."
   },
   {
     "objectID": "posts/BlogPost1/index.html#primary-visualizations",
     "href": "posts/BlogPost1/index.html#primary-visualizations",
-    "title": "Blog Post #1",
+    "title": "Blog Post 1",
     "section": "Primary Visualizations",
     "text": "Primary Visualizations\n\n\n`geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = \"cs\")'\n\n\n\n\n\nThis initial scatterplot shows a negative relationship between density and alcohol percentage with extreme curvature. The two clear outliers (denoted by red circles), make the plot visually unappealing as the points following the common trend are clumped together on the left side.\n\n\n`geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = \"cs\")'\n\n\n\n\n\nHere, we see the same plot as above, yet without the two outlier data points seen previously. Visually, the plot is vastly improved and it has a much more realistic smoother that represents the trend with higher accuracy. Though we have removed the most extreme cases, we still see a moderate degree of curvature in the relationship.\n\n\n`geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = \"cs\")'\n\n\n\n\n\nIn this plot, the data points are colored by type (red or white) and have separate respective smoother lines. Based on this visualization, it appears that red wines have higher alcohol percentages on average than white wines. With that being said, the relationships exhibited by the slopes of the smoothers appear relatively similar. There are certainly some differences throughout the span of the plot, but generally both types trend down before flattening out just before the density of 1.000.\n\n\n`geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = \"cs\")'\n\n\n\n\n\nThis final plot provides the same information as the last plot, yet through separate plots to avoid any overlap. Here, we can see that the range of densities seems to be more extensive for white wines than for reds. With the faceting, we can also see that there are far more observations for white wines than red (almost 3 times as many). The smoother lines do appear more distinct in this visualization, as we see red wines having more curvature and flattening out at a lower density in comparison."
   },
   {
     "objectID": "posts/BlogPost1/index.html#conclusion-and-wrap-up",
     "href": "posts/BlogPost1/index.html#conclusion-and-wrap-up",
-    "title": "Blog Post #1",
+    "title": "Blog Post 1",
     "section": "Conclusion and Wrap-Up",
     "text": "Conclusion and Wrap-Up\nIn conclusion, it seems that there is a difference in relationship between wine density and alcohol percentage for red and white wines. First, it seems that alcohol percentage is higher on average for red wines. Additionally, the plots suggest that as density trends towards the higher end of the values, the alcohol percentage of red wines falls less drastically than for white wines. A possible flaw with this analysis is disproportionate number of cases for white wines. There were over three times as many observations for white wines as opposed to red, which presents a limitation. Additionally, having to remove outliers is not ideal, though it enhanced the visualization extensively. In the future, I would like to further delve into the differences between red and white wines. The processes of making the types of wine are different, and you would therefore anticipate different properties and relationships between components of the wine."
   },
   {
     "objectID": "posts/BlogPost1/index.html#connection-to-class-ideas",
     "href": "posts/BlogPost1/index.html#connection-to-class-ideas",
-    "title": "Blog Post #1",
+    "title": "Blog Post 1",
     "section": "Connection to Class Ideas",
     "text": "Connection to Class Ideas\nI would say my visualizations are effective for several reasons. First, the initial visualization shows the relationship between two quantitative variables with a scatterplot. The scatterplot is effective because it allows the user to see the spread, the sample size, outliers, the general trend, and more. Additionally, the use of a smoother over a regression line allows us to see the non-linear trend of the relationship. I also highlighted the outliers in the initial plot by marking them, which allowed me to improve the plot through their removal. The final plots effectively show the relationship by type of wine by coloring the points by type and providing different smoothers to show the respective trends. This plot was effective for comparisons, yet caused some overlap, which led me to produce the scatterplots that were facet wrapped around the type. In this final plot, you can see see the differences clearly and no data points are hidden."
-  },
-  {
-    "objectID": "posts/test/index.html",
-    "href": "posts/test/index.html",
-    "title": "Test",
-    "section": "",
-    "text": "library(palmerpenguins)\nlibrary(tidyverse)\nggplot(data = penguins, \n       aes(x = bill_length_mm))+\n  geom_histogram()"
-  },
-  {
-    "objectID": "posts/welcome/index.html",
-    "href": "posts/welcome/index.html",
-    "title": "Welcome To My Blog",
-    "section": "",
-    "text": "This is the first post in a Quarto blog. Welcome!\n\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
   },
   {
     "objectID": "posts/BlogPost2/index.html",
@@ -88,7 +67,7 @@
     "href": "index.html",
     "title": "DataVizBlog",
     "section": "",
-    "text": "Blog Post 2\n\n\n\n\n\n\n\n\n\n\n \n\n\n\n\n  \n\n\n\n\nBlog Post #1\n\n\n\n\n\n\n\n\n\n\n\n\nFeb 9, 2024\n\n\nJack Fay\n\n\n\n\n\n\n  \n\n\n\n\nPost With Code\n\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\n\n\nJan 31, 2024\n\n\nJack Fay\n\n\n\n\n\n\n  \n\n\n\n\nTest\n\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\n\n\nJan 31, 2024\n\n\nJack Fay\n\n\n\n\n\n\n  \n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\n\n\nJan 28, 2024\n\n\nJack Fay\n\n\n\n\n\n\nNo matching items"
+    "text": "Blog Post 3\n\n\n\n\n\n\n\n\n\n\n\n\nMar 8, 2024\n\n\nJack Fay\n\n\n\n\n\n\n  \n\n\n\n\nBlog Post 2\n\n\n\n\n\n\n\n\n\n\n\n\nFeb 23, 2024\n\n\nJack Fay\n\n\n\n\n\n\n  \n\n\n\n\nBlog Post 1\n\n\n\n\n\n\n\n\n\n\n\n\nFeb 9, 2024\n\n\nJack Fay\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "about.html",

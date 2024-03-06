@@ -1,5 +1,5 @@
 ---
-title: "Blog Post #1"
+title: "Blog Post 1"
 author: "Jack Fay"
 date: "2024-02-9"
 ---
