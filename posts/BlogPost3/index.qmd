@@ -4,3 +4,106 @@ author: "Jack Fay"
 date: "2024-03-8"
 ---
 
+```{r, include=FALSE}
+library(tidyverse)
+library(broom)
+library(modelr)
+
+credit <- read_csv("data/attachment_default.csv")
+```
+
+## Introduction
+The data set I am working with for this post consists of 10000 individuals and whether their credit card has defaulted or not. The variables I am using are card balance and whether the credit card holder is a student. My goal is to model and visualize probability of defaulting by using logistic regression. An important quality of the data to note is that nearly 97% of the cases do not default. The data set is publicly available on Kaggle and can be found below.
+
+Link: [Default Dataset](https://www.kaggle.com/datasets/singh001avinash/default-credit-card)
+ 
+
+### Class balance
+```{r, echo = F}
+credit|>
+  group_by(default)|>
+  summarise(total = n())
+```
+```{r, include = FALSE}
+credit <- credit|> mutate(default = ifelse(default == "Yes", 1, 0))
+```
+
+## Modeling Default
+```{r}
+mod <- glm(default ~ balance + student, data = credit,
+                     family = "binomial")
+summary(mod)
+```
+
+```{r}
+grid <- credit |>
+  data_grid(
+    balance = seq_range(balance, n = 40),
+    student = c("Yes", "No")
+  ) 
+
+aug <- augment(mod, newdata = grid,
+                    se_fit = TRUE)
+
+aug <- aug|>
+  mutate(.lower = .fitted - .se.fit,
+         .upper = .fitted + .se.fit)
+
+default_yes <- credit|>filter(default == 1)
+default_no <- credit|>filter(default == 0)
+```
+
+
+## Log Odds Visualization 
+```{r}
+ggplot(data = aug, 
+       aes(x = balance, y = .fitted, group = student))+
+  geom_line(aes(color = student), size = 0.9)+
+  geom_ribbon(data = aug, aes(y = .fitted,
+                                  ymin = .lower,
+                                  ymax = .upper), 
+              alpha = 0.3)+
+  geom_rug(data = default_yes, sides = "t", aes(y = default), color = "blue")+
+  geom_rug(data = default_no, sides = "b", aes(y = default), color = "red3")+
+  theme_minimal()+
+  labs(x = "Card Balance", y = "Predicted Log Odds", title = "Model Predictions")
+```
+This plot displays the relationship between the predicted log odds of the model and account balance. As denoted by the key, there are two lines which exhibit the impact of our student variable. Evidently, non-students have increased log odds for defaulting in comparison to students. This is congruent with our negative model coefficient for `studentYes`, which reflects a lower probability of defaulting. The red marks on the bottom show cases where the card holder did not default, while the upper blue marks display cases that did default. It is also important to note that as card balance increases, the log odds of defaulting increase accordingly. 
+
+
+```{r}
+aug2 <- aug|>
+  mutate(.prob = (exp(.fitted)) / (1 + exp(.fitted)), 
+         .lowerprob = (exp(.lower)) / (1 + exp(.lower)),
+         .upperprob = (exp(.upper)) / (1 + exp(.upper)))
+```
+
+
+## Probability Visualization 
+```{r}
+ggplot(data = aug2, 
+       aes(x = balance, y = .prob, group = student))+
+  geom_line(aes(color = student), size = 0.9)+
+  geom_ribbon(data = aug2, aes(y = .prob,
+                                  ymin = .lowerprob,
+                                  ymax = .upperprob), 
+              alpha = 0.3)+
+  geom_rug(data = default_yes, sides = "t", aes(y = default), color = "blue")+
+  geom_rug(data = default_no, sides = "b", aes(y = default), color = "red3")+
+  theme_minimal()+
+  labs(x = "Card Balance", y = "Predicted Probabilities", title = "Model Predictions")
+```
+This visualization is identical to the last, yet now the log odds on the y-axis have been converted to display the predicted probability of defaulting. We again see that as balance increases, the probability of defaulting increases, while students have a reduced chance of defaulting. 
+
+
+## Conclusion and Wrap-Up
+In conclusion, the class imbalance of the default target variable is a limitation to this analysis. This may lead to model bias, as the model is likely to favor non-defaulting accounts because, as said before, nearly 97% of cases did not in fact default. Additional interest with the analysis pertain to the oddities of the our student variable. My common sense would lead me to believe that students would be more likely to default but this was not the case, as shown by the model summary and the visualization. In the future, I would certainly further investigate the impacts of being a student on probability of defaulting, and overall financial well being. Lastly, I think that an expanded data set with more metrics would certainly add to the capabilities of analysis. 
+
+## Connection to Class Ideas
+I would argue that this visualization is effective because it displays all of the components of the logistic regression model which I built to predict defaults. The process of creating the model, using the grid feature to make predictions at different values of our predictors, and displaying the resulting model allows viewers to understand precisely how the model is gauging probability for cases. Additionally, the use of the ribbon helps to display model uncertainty in terms of standard error. 
+
+
+
+
+
+

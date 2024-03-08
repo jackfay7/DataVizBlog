@@ -35,6 +35,55 @@
     "text": "Connection to Class Ideas\nI would say my visualizations are effective for several reasons. First, the initial visualization shows the relationship between two quantitative variables with a scatterplot. The scatterplot is effective because it allows the user to see the spread, the sample size, outliers, the general trend, and more. Additionally, the use of a smoother over a regression line allows us to see the non-linear trend of the relationship. I also highlighted the outliers in the initial plot by marking them, which allowed me to improve the plot through their removal. The final plots effectively show the relationship by type of wine by coloring the points by type and providing different smoothers to show the respective trends. This plot was effective for comparisons, yet caused some overlap, which led me to produce the scatterplots that were facet wrapped around the type. In this final plot, you can see see the differences clearly and no data points are hidden."
   },
   {
+    "objectID": "posts/BlogPost3/index.html",
+    "href": "posts/BlogPost3/index.html",
+    "title": "Blog Post 3",
+    "section": "",
+    "text": "The data set I am working with for this post consists of 10000 individuals and whether their credit card has defaulted or not. The variables I am using are card balance and whether the credit card holder is a student. My goal is to model and visualize probability of defaulting by using logistic regression. An important quality of the data to note is that nearly 97% of the cases do not default. The data set is publicly available on Kaggle and can be found below.\nLink: Default Dataset\n\n\n\n\n# A tibble: 2 × 2\n  default total\n  &lt;chr&gt;   &lt;int&gt;\n1 No       9667\n2 Yes       333"
+  },
+  {
+    "objectID": "posts/BlogPost3/index.html#introduction",
+    "href": "posts/BlogPost3/index.html#introduction",
+    "title": "Blog Post 3",
+    "section": "",
+    "text": "The data set I am working with for this post consists of 10000 individuals and whether their credit card has defaulted or not. The variables I am using are card balance and whether the credit card holder is a student. My goal is to model and visualize probability of defaulting by using logistic regression. An important quality of the data to note is that nearly 97% of the cases do not default. The data set is publicly available on Kaggle and can be found below.\nLink: Default Dataset\n\n\n\n\n# A tibble: 2 × 2\n  default total\n  &lt;chr&gt;   &lt;int&gt;\n1 No       9667\n2 Yes       333"
+  },
+  {
+    "objectID": "posts/BlogPost3/index.html#modeling-default",
+    "href": "posts/BlogPost3/index.html#modeling-default",
+    "title": "Blog Post 3",
+    "section": "Modeling Default",
+    "text": "Modeling Default\n\nmod &lt;- glm(default ~ balance + student, data = credit,\n                     family = \"binomial\")\nsummary(mod)\n\n\nCall:\nglm(formula = default ~ balance + student, family = \"binomial\", \n    data = credit)\n\nCoefficients:\n              Estimate Std. Error z value Pr(&gt;|z|)    \n(Intercept) -1.075e+01  3.692e-01 -29.116  &lt; 2e-16 ***\nbalance      5.738e-03  2.318e-04  24.750  &lt; 2e-16 ***\nstudentYes  -7.149e-01  1.475e-01  -4.846 1.26e-06 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n(Dispersion parameter for binomial family taken to be 1)\n\n    Null deviance: 2920.6  on 9999  degrees of freedom\nResidual deviance: 1571.7  on 9997  degrees of freedom\nAIC: 1577.7\n\nNumber of Fisher Scoring iterations: 8\n\n\n\ngrid &lt;- credit |&gt;\n  data_grid(\n    balance = seq_range(balance, n = 40),\n    student = c(\"Yes\", \"No\")\n  ) \n\naug &lt;- augment(mod, newdata = grid,\n                    se_fit = TRUE)\n\naug &lt;- aug|&gt;\n  mutate(.lower = .fitted - .se.fit,\n         .upper = .fitted + .se.fit)\n\ndefault_yes &lt;- credit|&gt;filter(default == 1)\ndefault_no &lt;- credit|&gt;filter(default == 0)"
+  },
+  {
+    "objectID": "posts/BlogPost3/index.html#log-odds-visualization",
+    "href": "posts/BlogPost3/index.html#log-odds-visualization",
+    "title": "Blog Post 3",
+    "section": "Log Odds Visualization",
+    "text": "Log Odds Visualization\n\nggplot(data = aug, \n       aes(x = balance, y = .fitted, group = student))+\n  geom_line(aes(color = student), size = 0.9)+\n  geom_ribbon(data = aug, aes(y = .fitted,\n                                  ymin = .lower,\n                                  ymax = .upper), \n              alpha = 0.3)+\n  geom_rug(data = default_yes, sides = \"t\", aes(y = default), color = \"blue\")+\n  geom_rug(data = default_no, sides = \"b\", aes(y = default), color = \"red3\")+\n  theme_minimal()+\n  labs(x = \"Card Balance\", y = \"Predicted Log Odds\", title = \"Model Predictions\")\n\nWarning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.\nℹ Please use `linewidth` instead.\n\n\n\n\n\nThis plot displays the relationship between the predicted log odds of the model and account balance. As denoted by the key, there are two lines which exhibit the impact of our student variable. Evidently, non-students have increased log odds for defaulting in comparison to students. This is congruent with our negative model coefficient for studentYes, which reflects a lower probability of defaulting. The red marks on the bottom show cases where the card holder did not default, while the upper blue marks display cases that did default. It is also important to note that as card balance increases, the log odds of defaulting increase accordingly.\n\naug2 &lt;- aug|&gt;\n  mutate(.prob = (exp(.fitted)) / (1 + exp(.fitted)), \n         .lowerprob = (exp(.lower)) / (1 + exp(.lower)),\n         .upperprob = (exp(.upper)) / (1 + exp(.upper)))"
+  },
+  {
+    "objectID": "posts/BlogPost3/index.html#probability-visualization",
+    "href": "posts/BlogPost3/index.html#probability-visualization",
+    "title": "Blog Post 3",
+    "section": "Probability Visualization",
+    "text": "Probability Visualization\n\nggplot(data = aug2, \n       aes(x = balance, y = .prob, group = student))+\n  geom_line(aes(color = student), size = 0.9)+\n  geom_ribbon(data = aug2, aes(y = .prob,\n                                  ymin = .lowerprob,\n                                  ymax = .upperprob), \n              alpha = 0.3)+\n  geom_rug(data = default_yes, sides = \"t\", aes(y = default), color = \"blue\")+\n  geom_rug(data = default_no, sides = \"b\", aes(y = default), color = \"red3\")+\n  theme_minimal()+\n  labs(x = \"Card Balance\", y = \"Predicted Probabilities\", title = \"Model Predictions\")\n\n\n\n\nThis visualization is identical to the last, yet now the log odds on the y-axis have been converted to display the predicted probability of defaulting. We again see that as balance increases, the probability of defaulting increases, while students have a reduced chance of defaulting."
+  },
+  {
+    "objectID": "posts/BlogPost3/index.html#conclusion-and-wrap-up",
+    "href": "posts/BlogPost3/index.html#conclusion-and-wrap-up",
+    "title": "Blog Post 3",
+    "section": "Conclusion and Wrap-Up",
+    "text": "Conclusion and Wrap-Up\nIn conclusion, the class imbalance of the default target variable is a limitation to this analysis. This may lead to model bias, as the model is likely to favor non-defaulting accounts because, as said before, nearly 97% of cases did not in fact default. Additional interest with the analysis pertain to the oddities of the our student variable. My common sense would lead me to believe that students would be more likely to default but this was not the case, as shown by the model summary and the visualization. In the future, I would certainly further investigate the impacts of being a student on probability of defaulting, and overall financial well being. Lastly, I think that an expanded data set with more metrics would certainly add to the capabilities of analysis."
+  },
+  {
+    "objectID": "posts/BlogPost3/index.html#connection-to-class-ideas",
+    "href": "posts/BlogPost3/index.html#connection-to-class-ideas",
+    "title": "Blog Post 3",
+    "section": "Connection to Class Ideas",
+    "text": "Connection to Class Ideas\nI would argue that this visualization is effective because it displays all of the components of the logistic regression model which I built to predict defaults. The process of creating the model, using the grid feature to make predictions at different values of our predictors, and displaying the resulting model allows viewers to understand precisely how the model is gauging probability for cases. Additionally, the use of the ribbon helps to display model uncertainty in terms of standard error."
+  },
+  {
     "objectID": "posts/BlogPost2/index.html",
     "href": "posts/BlogPost2/index.html",
     "title": "Blog Post 2",
@@ -74,6 +123,6 @@
     "href": "about.html",
     "title": "About",
     "section": "",
-    "text": "About this blog"
+    "text": "This blog is a GitHub site that holds personal projects on data analysis. Each blog post features a seperate topic of interest with a supporting visualization."
   }
 ]
