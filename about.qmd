@@ -16,4 +16,4 @@ about:
 
 ---
 
-This blog is a GitHub site that holds personal projects on data analysis. Each blog post features a seperate topic of interest with a supporting visualization. 
+This blog is a GitHub site that holds personal projects on data analysis. Each blog post features a separate topic of interest with a supporting visualization. 
