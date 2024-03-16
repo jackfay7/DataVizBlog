@@ -178,7 +178,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>The data set I am working with for this post consists of 10000 individuals and whether their credit card has defaulted or not. The variables I am using are card balance and whether the credit card holder is a student. My goal is to model and visualize probability of defaulting by using logistic regression. An important quality of the data to note is that nearly 97% of the cases do not default. The data set is publicly available on Kaggle and can be found below.</p>
+<p>The data set I am working with for this post consists of 10000 individuals and whether their credit card has defaulted or not. The variables I am interested in are card balance, income, and whether the credit card holder is a student. My goal is to model and visualize probability of defaulting by using logistic regression. An important quality of the data to note is that nearly 97% of the cases do not default. The data set is publicly available on Kaggle and can be found through the link below.</p>
 <p>Link: <a href="https://www.kaggle.com/datasets/singh001avinash/default-credit-card">Default Dataset</a></p>
 <section id="class-balance" class="level3">
 <h3 class="anchored" data-anchor-id="class-balance">Class balance</h3>
@@ -225,7 +225,7 @@ Number of Fisher Scoring iterations: 8</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> credit <span class="sc">|&gt;</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_grid</span>(</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">balance =</span> <span class="fu">seq_range</span>(balance, <span class="at">n =</span> <span class="dv">40</span>),</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">balance =</span> <span class="fu">seq_range</span>(balance, <span class="at">n =</span> <span class="dv">60</span>),</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">student =</span> <span class="fu">c</span>(<span class="st">"Yes"</span>, <span class="st">"No"</span>)</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  ) </span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
@@ -236,8 +236,17 @@ Number of Fisher Scoring iterations: 8</code></pre>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">.lower =</span> .fitted <span class="sc">-</span> .se.fit,</span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">.upper =</span> .fitted <span class="sc">+</span> .se.fit)</span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>default_yes <span class="ot">&lt;-</span> credit<span class="sc">|&gt;</span><span class="fu">filter</span>(default <span class="sc">==</span> <span class="dv">1</span>)</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>default_no <span class="ot">&lt;-</span> credit<span class="sc">|&gt;</span><span class="fu">filter</span>(default <span class="sc">==</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># obtaining sample to avoid overlap in following geom_rug()</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>default_yes <span class="ot">&lt;-</span> credit<span class="sc">|&gt;</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(default <span class="sc">==</span> <span class="dv">1</span>)<span class="sc">|&gt;</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample_n</span>(<span class="at">size =</span> <span class="dv">50</span>, <span class="at">replace =</span> F)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>default_no <span class="ot">&lt;-</span> credit<span class="sc">|&gt;</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(default <span class="sc">==</span> <span class="dv">0</span>)<span class="sc">|&gt;</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample_n</span>(<span class="at">size =</span> <span class="dv">50</span>, <span class="at">replace =</span> F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="log-odds-visualization" class="level2">
@@ -248,12 +257,12 @@ Number of Fisher Scoring iterations: 8</code></pre>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">color =</span> student), <span class="at">size =</span> <span class="fl">0.9</span>)<span class="sc">+</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">data =</span> aug, <span class="fu">aes</span>(<span class="at">y =</span> .fitted,</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">ymin =</span> .lower,</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">ymax =</span> .upper), </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">ymax =</span> .upper, <span class="at">color =</span> student, <span class="at">fill =</span> student), </span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.3</span>)<span class="sc">+</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rug</span>(<span class="at">data =</span> default_yes, <span class="at">sides =</span> <span class="st">"t"</span>, <span class="fu">aes</span>(<span class="at">y =</span> default), <span class="at">color =</span> <span class="st">"blue"</span>)<span class="sc">+</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rug</span>(<span class="at">data =</span> default_no, <span class="at">sides =</span> <span class="st">"b"</span>, <span class="fu">aes</span>(<span class="at">y =</span> default), <span class="at">color =</span> <span class="st">"red3"</span>)<span class="sc">+</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rug</span>(<span class="at">data =</span> default_yes, <span class="at">sides =</span> <span class="st">"t"</span>, <span class="fu">aes</span>(<span class="at">y =</span> default), <span class="at">color =</span> <span class="st">"tomato"</span>)<span class="sc">+</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rug</span>(<span class="at">data =</span> default_no, <span class="at">sides =</span> <span class="st">"b"</span>, <span class="fu">aes</span>(<span class="at">y =</span> default), <span class="at">color =</span> <span class="st">"darkturquoise"</span>)<span class="sc">+</span></span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Card Balance"</span>, <span class="at">y =</span> <span class="st">"Predicted Log Odds"</span>, <span class="at">title =</span> <span class="st">"Model Predictions"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Card Balance"</span>, <span class="at">y =</span> <span class="st">"Predicted Log-Odds"</span>, <span class="at">title =</span> <span class="st">"Model Predictions"</span>, <span class="at">caption =</span> <span class="st">"*tick marks reflect actual points"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
 ℹ Please use `linewidth` instead.</code></pre>
@@ -278,12 +287,12 @@ Number of Fisher Scoring iterations: 8</code></pre>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">color =</span> student), <span class="at">size =</span> <span class="fl">0.9</span>)<span class="sc">+</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">data =</span> aug2, <span class="fu">aes</span>(<span class="at">y =</span> .prob,</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">ymin =</span> .lowerprob,</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">ymax =</span> .upperprob), </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">ymax =</span> .upperprob, <span class="at">color =</span> student, <span class="at">fill =</span> student), </span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.3</span>)<span class="sc">+</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rug</span>(<span class="at">data =</span> default_yes, <span class="at">sides =</span> <span class="st">"t"</span>, <span class="fu">aes</span>(<span class="at">y =</span> default), <span class="at">color =</span> <span class="st">"blue"</span>)<span class="sc">+</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rug</span>(<span class="at">data =</span> default_no, <span class="at">sides =</span> <span class="st">"b"</span>, <span class="fu">aes</span>(<span class="at">y =</span> default), <span class="at">color =</span> <span class="st">"red3"</span>)<span class="sc">+</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rug</span>(<span class="at">data =</span> default_yes, <span class="at">sides =</span> <span class="st">"t"</span>, <span class="fu">aes</span>(<span class="at">y =</span> default), <span class="at">color =</span> <span class="st">"tomato"</span>)<span class="sc">+</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rug</span>(<span class="at">data =</span> default_no, <span class="at">sides =</span> <span class="st">"b"</span>, <span class="fu">aes</span>(<span class="at">y =</span> default), <span class="at">color =</span> <span class="st">"darkturquoise"</span>)<span class="sc">+</span></span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Card Balance"</span>, <span class="at">y =</span> <span class="st">"Predicted Probabilities"</span>, <span class="at">title =</span> <span class="st">"Model Predictions"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Card Balance"</span>, <span class="at">y =</span> <span class="st">"Predicted Probabilities"</span>, <span class="at">title =</span> <span class="st">"Model Predictions"</span>, <span class="at">caption =</span> <span class="st">"*tick marks reflect actual points"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -297,6 +306,71 @@ Number of Fisher Scoring iterations: 8</code></pre>
 <section id="connection-to-class-ideas" class="level2">
 <h2 class="anchored" data-anchor-id="connection-to-class-ideas">Connection to Class Ideas</h2>
 <p>I would argue that this visualization is effective because it displays all of the components of the logistic regression model which I built to predict defaults. The process of creating the model, using the grid feature to make predictions at different values of our predictors, and displaying the resulting model allows viewers to understand precisely how the model is gauging probability for cases. Additionally, the use of the ribbon helps to display model uncertainty in terms of standard error.</p>
+</section>
+<section id="adding-income-to-the-model" class="level2">
+<h2 class="anchored" data-anchor-id="adding-income-to-the-model">Adding <code>income</code> to the Model</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>mod2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(default <span class="sc">~</span> balance <span class="sc">+</span> income <span class="sc">+</span> student, <span class="at">data =</span> credit,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>grid2 <span class="ot">&lt;-</span> credit <span class="sc">|&gt;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_grid</span>(</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">balance =</span> <span class="fu">seq_range</span>(balance, <span class="at">n =</span> <span class="dv">60</span>),</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">income =</span> <span class="fu">seq_range</span>(income, <span class="at">n =</span> <span class="dv">4</span>, <span class="at">pretty =</span> T),</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">student =</span> <span class="fu">c</span>(<span class="st">"Yes"</span>, <span class="st">"No"</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  ) </span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>aug3 <span class="ot">&lt;-</span> <span class="fu">augment</span>(mod2, <span class="at">newdata =</span> grid2,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se_fit =</span> <span class="cn">TRUE</span>)<span class="sc">|&gt;</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">.lower =</span> .fitted <span class="sc">-</span> .se.fit,</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">.upper =</span> .fitted <span class="sc">+</span> .se.fit)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> aug3, </span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> balance, <span class="at">y =</span> .fitted, <span class="at">color =</span> <span class="fu">factor</span>(income), <span class="at">fill =</span> <span class="fu">factor</span>(income)))<span class="sc">+</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">se =</span> T)<span class="sc">+</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rug</span>(<span class="at">data =</span> default_yes, <span class="at">sides =</span> <span class="st">"t"</span>, <span class="fu">aes</span>(<span class="at">y =</span> default), <span class="at">color =</span> <span class="st">"tomato"</span>)<span class="sc">+</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rug</span>(<span class="at">data =</span> default_no, <span class="at">sides =</span> <span class="st">"b"</span>, <span class="fu">aes</span>(<span class="at">y =</span> default), <span class="at">color =</span> <span class="st">"darkturquoise"</span>)<span class="sc">+</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>student)<span class="sc">+</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Card Balance"</span>, <span class="at">y =</span> <span class="st">"Predicted Log-Odds"</span>, <span class="at">title =</span> <span class="st">"Model Predictions"</span>, <span class="at">caption =</span> <span class="st">"*tick marks reflect actual points"</span>, <span class="at">color =</span> <span class="st">"Income"</span>)<span class="sc">+</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using method = 'loess' and formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>In the plot above, we see that income has little to no effect in predicting probability of default. The lines at various values of income do not differ in intecept by very much, meaning it should likely not be included in the final model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = default ~ balance + income + student, family = "binomial", 
+    data = credit)
+
+Coefficients:
+              Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -1.087e+01  4.923e-01 -22.080  &lt; 2e-16 ***
+balance      5.737e-03  2.319e-04  24.738  &lt; 2e-16 ***
+income       3.033e-06  8.203e-06   0.370  0.71152    
+studentYes  -6.468e-01  2.363e-01  -2.738  0.00619 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 2920.6  on 9999  degrees of freedom
+Residual deviance: 1571.5  on 9996  degrees of freedom
+AIC: 1579.5
+
+Number of Fisher Scoring iterations: 8</code></pre>
+</div>
+</div>
+<p>Examining the summary of the model output, our findings from the plot above are reflects by the small t-value associated with income. Additionally, the AIC is lower in the first model, confirming that income is not useful in the model for predicting default probability.</p>
 
 
 </section>

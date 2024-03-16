@@ -13,7 +13,7 @@ credit <- read_csv("data/attachment_default.csv")
 ```
 
 ## Introduction
-The data set I am working with for this post consists of 10000 individuals and whether their credit card has defaulted or not. The variables I am using are card balance and whether the credit card holder is a student. My goal is to model and visualize probability of defaulting by using logistic regression. An important quality of the data to note is that nearly 97% of the cases do not default. The data set is publicly available on Kaggle and can be found below.
+The data set I am working with for this post consists of 10000 individuals and whether their credit card has defaulted or not. The variables I am interested in are card balance, income, and whether the credit card holder is a student. My goal is to model and visualize probability of defaulting by using logistic regression. An important quality of the data to note is that nearly 97% of the cases do not default. The data set is publicly available on Kaggle and can be found through the link below.
 
 Link: [Default Dataset](https://www.kaggle.com/datasets/singh001avinash/default-credit-card)
  
@@ -38,7 +38,7 @@ summary(mod)
 ```{r}
 grid <- credit |>
   data_grid(
-    balance = seq_range(balance, n = 40),
+    balance = seq_range(balance, n = 60),
     student = c("Yes", "No")
   ) 
 
@@ -49,8 +49,19 @@ aug <- aug|>
   mutate(.lower = .fitted - .se.fit,
          .upper = .fitted + .se.fit)
 
-default_yes <- credit|>filter(default == 1)
-default_no <- credit|>filter(default == 0)
+
+
+# obtaining sample to avoid overlap in following geom_rug()
+default_yes <- credit|>
+  filter(default == 1)|>
+  sample_n(size = 50, replace = F)
+
+
+default_no <- credit|>
+  filter(default == 0)|>
+  sample_n(size = 50, replace = F)
+
+  
 ```
 
 
@@ -61,12 +72,12 @@ ggplot(data = aug,
   geom_line(aes(color = student), size = 0.9)+
   geom_ribbon(data = aug, aes(y = .fitted,
                                   ymin = .lower,
-                                  ymax = .upper), 
+                                  ymax = .upper, color = student, fill = student), 
               alpha = 0.3)+
-  geom_rug(data = default_yes, sides = "t", aes(y = default), color = "blue")+
-  geom_rug(data = default_no, sides = "b", aes(y = default), color = "red3")+
+  geom_rug(data = default_yes, sides = "t", aes(y = default), color = "tomato")+
+  geom_rug(data = default_no, sides = "b", aes(y = default), color = "darkturquoise")+
   theme_minimal()+
-  labs(x = "Card Balance", y = "Predicted Log Odds", title = "Model Predictions")
+  labs(x = "Card Balance", y = "Predicted Log-Odds", title = "Model Predictions", caption = "*tick marks reflect actual points")
 ```
 This plot displays the relationship between the predicted log odds of the model and account balance. As denoted by the key, there are two lines which exhibit the impact of our student variable. Evidently, non-students have increased log odds for defaulting in comparison to students. This is congruent with our negative model coefficient for `studentYes`, which reflects a lower probability of defaulting. The red marks on the bottom show cases where the card holder did not default, while the upper blue marks display cases that did default. It is also important to note that as card balance increases, the log odds of defaulting increase accordingly. 
 
@@ -86,12 +97,12 @@ ggplot(data = aug2,
   geom_line(aes(color = student), size = 0.9)+
   geom_ribbon(data = aug2, aes(y = .prob,
                                   ymin = .lowerprob,
-                                  ymax = .upperprob), 
+                                  ymax = .upperprob, color = student, fill = student), 
               alpha = 0.3)+
-  geom_rug(data = default_yes, sides = "t", aes(y = default), color = "blue")+
-  geom_rug(data = default_no, sides = "b", aes(y = default), color = "red3")+
+  geom_rug(data = default_yes, sides = "t", aes(y = default), color = "tomato")+
+  geom_rug(data = default_no, sides = "b", aes(y = default), color = "darkturquoise")+
   theme_minimal()+
-  labs(x = "Card Balance", y = "Predicted Probabilities", title = "Model Predictions")
+  labs(x = "Card Balance", y = "Predicted Probabilities", title = "Model Predictions", caption = "*tick marks reflect actual points")
 ```
 This visualization is identical to the last, yet now the log odds on the y-axis have been converted to display the predicted probability of defaulting. We again see that as balance increases, the probability of defaulting increases, while students have a reduced chance of defaulting. 
 
@@ -103,7 +114,39 @@ In conclusion, the class imbalance of the default target variable is a limitatio
 I would argue that this visualization is effective because it displays all of the components of the logistic regression model which I built to predict defaults. The process of creating the model, using the grid feature to make predictions at different values of our predictors, and displaying the resulting model allows viewers to understand precisely how the model is gauging probability for cases. Additionally, the use of the ribbon helps to display model uncertainty in terms of standard error. 
 
 
+## Adding `income` to the Model 
+
+```{r}
+mod2 <- glm(default ~ balance + income + student, data = credit,
+                     family = "binomial")
+
+grid2 <- credit |>
+  data_grid(
+    balance = seq_range(balance, n = 60),
+    income = seq_range(income, n = 4, pretty = T),
+    student = c("Yes", "No")
+  ) 
+
+aug3 <- augment(mod2, newdata = grid2,
+                    se_fit = TRUE)|>
+  mutate(.lower = .fitted - .se.fit,
+         .upper = .fitted + .se.fit)
 
 
 
+ggplot(data = aug3, 
+       aes(x = balance, y = .fitted, color = factor(income), fill = factor(income)))+
+  geom_smooth(se = T)+
+  geom_rug(data = default_yes, sides = "t", aes(y = default), color = "tomato")+
+  geom_rug(data = default_no, sides = "b", aes(y = default), color = "darkturquoise")+
+  facet_wrap(~student)+
+  theme_minimal()+
+  labs(x = "Card Balance", y = "Predicted Log-Odds", title = "Model Predictions", caption = "*tick marks reflect actual points", color = "Income")+
+  guides(fill = "none")
+```
+In the plot above, we see that income has little to no effect in predicting probability of default. The lines at various values of income do not differ in intecept by very much, meaning it should likely not be included in the final model. 
 
+```{r}
+summary(mod2)
+```
+Examining the summary of the model output, our findings from the plot above are reflects by the small t-value associated with income. Additionally, the AIC is lower in the first model, confirming that income is not useful in the model for predicting default probability. 
