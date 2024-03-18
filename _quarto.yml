@@ -3,7 +3,7 @@ project:
   output-dir: docs
 
 website:
-  title: "Data Visualization Weekly Blog"
+  title: "Personal Analyses & Visualizations"
   navbar:
     right:
       - about.qmd

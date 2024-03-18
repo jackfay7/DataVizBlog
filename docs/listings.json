@@ -2,6 +2,8 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/PoissonModeling/index.html",
+      "/posts/MultiLevelModeling/index.html",
       "/posts/BlogPost3/index.html",
       "/posts/BlogPost2/index.html",
       "/posts/BlogPost1/index.html"

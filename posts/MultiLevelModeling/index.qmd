@@ -1,0 +1,511 @@
+---
+title: "Multilevel Modeling"
+author: "Jack Fay"
+date: "2024-03-8"
+---
+```{r, include = FALSE}
+# packages 
+library(lme4)
+library(lmerTest)
+library(tidyverse)
+library(ggplot2)
+```
+
+
+# Data
+```{r, include = FALSE}
+# data 
+lift <- read_csv("data/powerlifting_313.csv")
+```
+# Modifying Variables 
+
+```{r}
+lift <- read_csv("data/powerlifting_313.csv")
+lift <- lift%>%
+  drop_na(BodyweightKg, TotalKg, Best3SquatKg, Best3BenchKg, Best3DeadliftKg, Sex, Equipment, Event)
+
+lift <- lift%>%
+  mutate(cBodyweightKg = BodyweightKg - mean(BodyweightKg, na.rm = TRUE), 
+         cTotalKg = TotalKg - mean(TotalKg, na.rm = TRUE ),
+         
+         cBest3SquatKg = Best3SquatKg - mean(Best3SquatKg, na.rm = TRUE),
+          cBest3DeadliftKg = Best3DeadliftKg - mean(Best3DeadliftKg, na.rm = TRUE),
+          cBest3BenchKg = Best3BenchKg - mean(Best3BenchKg, na.rm = TRUE), 
+         testedIND = ifelse(!is.na(Tested), "Yes", "No"))
+```
+
+
+Response variable 1: Goodlift
+Response variable 2: Best 3 Deadlift Kg 
+
+Research questions/goals for Goodlift:
+- Older lifters will be associated with higher Goodlift percentages. 
+
+- Will gender have an impact on Goodlift points?
+
+
+Research questions/goals for Best 3 Deadlift Kg:
+- Lifters that use equipment will be associated with higher best 3 deadlift Kg totals. 
+
+- Lifters with higher best 3 squat Kg weights will be associated with higher best 3 deadlift Kg weights (will likely be subsetting the data to only include observations where the lifter entered for both lifts).  
+
+- Male lifters will be associated with higher best 3 deadlift Kg weights.
+
+Level 1(Individual Lift Level): 
+- BodyWeight 
+- Equipment 
+- Tested
+- MeetCountry
+- Division (too many to be relevant)
+- Event
+- Best3 variables
+(Didn't choose to use age because it changes only for some lifters)
+(Additionally, the age class is far more important 24-34 & 40-44)
+
+Level 2 (Lifter Level): 
+- WeightClassKg (generally the same for each lifter)
+- AgeClass (generally the same for each lifter)
+- Sex 
+- Country
+
+# Exploratory Analysis
+```{r}
+# Relevant Proportions
+prop.table(table(lift$Equipment))
+prop.table(table(lift$Event))
+prop.table(table(lift$AgeClass))
+
+
+
+lift <- lift%>%
+  mutate(testedIND = ifelse(!is.na(Tested), "yes", "no"))
+prop.table(table(lift$testedIND))
+```
+
+## Level 1 Covariates
+### Equipment 
+```{r}
+ggplot(data = lift, 
+       aes(x = Equipment, y = Goodlift, fill = Equipment))+
+  geom_boxplot()+
+  labs(y = "Goodlift Score", title = "Goodlift Score by Equipment Type")
+
+# Small difference, however, very little data for single-ply
+# Most lifters use the same equipment across all lifts 
+# Only 0.08 of the observations are single-ply
+
+random_sample <- lift%>%
+  slice(1:20)
+
+ggplot(data = random_sample, 
+       aes(x = Equipment, y = Goodlift))+
+  geom_boxplot()+
+  facet_wrap(~Name)
+# do not see variation from one of the equipment types among lifters
+```
+
+### Tested
+```{r}
+ 
+
+ggplot(data = lift, 
+       aes(x = testedIND, y = Goodlift))+
+  geom_boxplot()
+# almost identical 
+
+random_sample <- lift%>%
+  slice(1:100)
+
+ggplot(data = random_sample, 
+       aes(x = Tested, y = Goodlift))+
+  geom_boxplot()+
+  facet_wrap(~Name)
+
+# Seems to be another case where we can call this a potential level 2 covariate that will likely not be too useful 
+```
+
+### Meet Country
+```{r}
+ggplot(data = lift, 
+       aes(x = MeetCountry, y = Goodlift))+
+  geom_boxplot()
+
+# Far too many countries to be useful under time restrictions
+# Lots of variability in each country 
+```
+
+### Division
+```{r}
+ggplot(data = lift, 
+       aes(x = Division, y = Goodlift))+
+  geom_boxplot()
+
+
+# Same case as country here 
+```
+### Event
+```{r}
+ggplot(data = lift, 
+       aes(x = Event, y = Goodlift))+
+  geom_boxplot()
+
+# Could be helpful at level 2
+
+random_sample <- lift%>%
+  slice(1:100)
+
+ggplot(data = random_sample, 
+       aes(x = Event, y = Goodlift))+
+  geom_boxplot()+
+  facet_wrap(~Name)
+```
+
+### BodyweightKg
+```{r, warning=FALSE}
+# Independence assumed 
+ggplot(lift,
+       aes(x=BodyweightKg,y=Goodlift)) + 
+  geom_point() + 
+  geom_smooth(method="loess") + 
+  xlab("BodyWeight (Kg)") + 
+  ylab("Goodlift")+
+  labs(title = "Body Weight (kg) vs. Goodlift")
+# Looks essentially flat
+```
+
+
+```{r, warning=FALSE}
+lift.lev2 <-  lift %>%
+  group_by(Name) %>%
+  filter(row_number() == 1) %>%
+  select(Name, BodyweightKg, Goodlift)
+
+meanbysubj <- lift %>% group_by(Name) %>%
+  summarise(meanbysubj = mean(Goodlift, na.rm = TRUE))
+
+lift.lev2 <- lift.lev2 %>%
+  left_join(meanbysubj, by = "Name")
+
+
+# Independence not assumed
+ggplot(lift.lev2,aes(x=BodyweightKg,y=meanbysubj)) + 
+  geom_point() + 
+  geom_smooth(method="loess") + 
+  xlab("BodyWeight") + 
+  ylab("Goodlift by Subject")+
+  labs(title = "")
+# Still looks flat
+```
+
+
+```{r, warning=FALSE}
+lift2 <- lift%>%
+  slice(1:100)
+
+ggplot(lift2,aes(x=cBodyweightKg,y=Goodlift)) + 
+  geom_point() + 
+  geom_smooth(method="loess") + 
+  xlab("Age") + 
+  ylab("Goodlift")+
+  facet_wrap(~Name)
+# Possibly useful at level 1 
+```
+
+### Best3SquatKg
+```{r, warning=FALSE}
+ggplot(data = lift, 
+       aes(x = Best3SquatKg, y = Goodlift))+
+  geom_point()+
+  geom_smooth()
+
+# seems to be quite significant 
+
+lift2 <- lift%>%
+  filter(!is.na(Best3SquatKg))%>%
+  filter(!is.na(Goodlift))%>%
+  slice(60:150)
+
+ggplot(data = lift2, 
+       aes(x = Best3SquatKg, y = Goodlift))+
+  geom_point()+
+  geom_smooth()+
+  facet_wrap(~Name)
+```
+
+### Best3DeadLiftKg
+```{r, warning=FALSE}
+ggplot(data = lift, 
+       aes(x = Best3DeadliftKg, y = Goodlift))+
+  geom_point()+
+  geom_smooth()
+
+# seems to be quite significant 
+
+lift2 <- lift%>%
+  slice(1:150)
+
+ggplot(data = lift2, 
+       aes(x = Best3DeadliftKg, y = Goodlift))+
+  geom_point()+
+  geom_smooth()+
+  facet_wrap(~Name)
+```
+
+### Best3BenchKg
+```{r, warning=FALSE}
+ggplot(data = lift, 
+       aes(x = Best3BenchKg, y = Goodlift))+
+  geom_point()+
+  geom_smooth()
+
+# seems to be quite significant 
+
+lift2 <- lift%>%
+  filter(!is.na(Best3BenchKg))%>%
+  filter(!is.na(Goodlift))%>%
+  slice(1:150)
+
+ggplot(data = lift2, 
+       aes(x = Best3BenchKg, y = Goodlift))+
+  geom_point()+
+  geom_smooth()+
+  facet_wrap(~Name)
+```
+
+### Total Kg 
+```{r, warning=FALSE}
+ggplot(data = lift, 
+       aes(x = TotalKg, y = Goodlift))+
+  geom_point()+
+  geom_smooth()
+
+# seems to be quite significant 
+
+lift2 <- lift%>%
+  slice(1:150)
+
+ggplot(data = lift2, 
+       aes(x = TotalKg, y = Goodlift))+
+  geom_point()+
+  geom_smooth()+
+  facet_wrap(~Name)
+```
+### Age Class
+```{r}
+ggplot(data = lift, 
+       aes(x = AgeClass, y = Goodlift))+
+  geom_boxplot()
+
+# Looks to be useful 
+```
+
+### Sex 
+```{r}
+ggplot(data = lift, 
+       aes(x = Sex, y = Goodlift))+
+  geom_boxplot()
+
+
+# use sex 
+```
+
+
+
+
+### Age
+```{r}
+# Exploring Age vs. Goodlift 
+
+lift<-lift%>%
+  mutate(age_centered = (Age - mean(Age, na.rm = TRUE)))
+
+# Independence assumed 
+ggplot(lift,aes(x=age_centered,y=Goodlift)) + 
+  geom_point() + 
+  geom_smooth(method="loess") + 
+  xlab("Age") + 
+  ylab("Goodlift")
+
+
+lift.lev2 <-  lift %>%
+  group_by(Name) %>%
+  filter(row_number() == 1) %>%
+  select(Name, age_centered, Goodlift)
+
+meanbysubj <- lift %>% group_by(Name) %>%
+  summarise(meanbysubj = mean(Goodlift, na.rm = TRUE))
+
+lift.lev2 <- lift.lev2 %>%
+  left_join(meanbysubj, by = "Name")
+
+
+# Independence not assumed
+ggplot(lift.lev2,aes(x=age_centered,y=meanbysubj)) + 
+  geom_point() + 
+  geom_smooth(method="loess") + 
+  xlab("Age") + 
+  ylab("Goodlift by Subject")
+
+
+
+# Do not feel confortable putting age in due to the AgeClass gap
+```
+
+
+
+
+# Inital Models
+```{r}
+model.a <- lmer(Goodlift ~ 1 + (1|Name), REML = T, data = lift)
+summary(model.a)
+```
+ICC_1 = 193.88/(193.88+31.42) = 0.86
+
+86% of the total variability in Goodlift scores is attributable to differences among lifters. 
+
+# Testing Models 
+```{r}
+mod1 <- lmer(Goodlift ~ Best3SquatKg + (Best3SquatKg|Name), REML = F, data = lift)
+summary(mod1)
+```
+```{r}
+mod2 <- lmer(Goodlift ~ Best3BenchKg + Best3DeadliftKg + Best3SquatKg + (Best3BenchKg + Best3DeadliftKg + Best3SquatKg|Name), REML = F, data = lift)
+summary(mod2)
+```
+```{r}
+mod3 <- lmer(Goodlift ~ Sex + BodyweightKg + Best3BenchKg + Best3DeadliftKg + Best3SquatKg + (Best3BenchKg + Best3DeadliftKg + Best3SquatKg|Name), REML = F, data = lift)
+
+summary(mod3)
+```
+
+```{r}
+mod4 <- lmer(Goodlift ~ Sex + BodyweightKg + Best3BenchKg + Best3DeadliftKg + Best3SquatKg + (Sex + Best3DeadliftKg + Best3SquatKg|Name), REML = F, data = lift)
+
+summary(mod4)
+```
+```{r}
+mod5 <- lmer(Goodlift ~ 
+               Sex + 
+               BodyweightKg + 
+               Best3BenchKg + 
+               Best3DeadliftKg + 
+               Best3SquatKg + 
+               Sex:Best3SquatKg + 
+               Sex:BodyweightKg + 
+               Sex:Best3DeadliftKg+ (Best3SquatKg + BodyweightKg + Best3DeadliftKg|Name), REML = F, data = lift)
+
+summary(mod5)
+```
+
+
+
+```{r}
+mod6 <- lmer(Goodlift ~ 
+               Sex + 
+               AgeClass+
+               Equipment + 
+               testedIND + 
+               #Event+ (all SBD due to NA values)
+               cBodyweightKg+
+               cTotalKg + 
+              # cBest3BenchKg + 
+              # cBest3DeadliftKg + 
+              # cBest3SquatKg 
+                + (Equipment + cBodyweightKg + cTotalKg|Name), REML = F, data = lift, control = lmerControl(optimizer ='optimx', optCtrl=list(method='nlminb')))
+
+summary(mod6)
+
+
+
+```
+
+Level 1(Individual Lift Level): 
+- BodyWeight 
+- Equipment 
+- Tested
+- MeetCountry
+- Division (too many to be relevant)
+- Event
+- Best3 variables
+(Didn't choose to use age because it changes only for some lifters)
+(Additionally, the age class is far more important 24-34 & 40-44)
+
+Level 2 (Lifter Level): 
+- WeightClassKg (generally the same for each lifter)
+- AgeClass (generally the same for each lifter)
+- Sex 
+- Country
+
+
+
+# Slowly Building the Model 
+```{r}
+modA <- lmer(Goodlift ~ 
+               Equipment+ (Equipment|Name), REML = F, data = lift, control = lmerControl(optimizer ='optimx', optCtrl=list(method='nlminb')))
+
+summary(modA)
+```
+
+```{r}
+modB <- lmer(Goodlift ~ 
+              cTotalKg + Equipment+ (cTotalKg + Equipment|Name), REML = F, data = lift, control = lmerControl(optimizer ='optimx', optCtrl=list(method='nlminb')))
+
+summary(modB)
+anova(modA, modB)
+```
+
+
+```{r}
+modC <- lmer(Goodlift ~ 
+              cBodyweightKg + cTotalKg + Equipment + (cBodyweightKg + cTotalKg + Equipment|Name), REML = F, data = lift, control = lmerControl(optimizer ='optimx', optCtrl=list(method='nlminb')))
+
+summary(modC)
+anova(modB, modC)
+```
+
+```{r}
+modD <- lmer(Goodlift ~ 
+              cBest3DeadliftKg + cBodyweightKg + cTotalKg + Equipment + (cBodyweightKg + cTotalKg + Equipment|Name), REML = F, data = lift, control = lmerControl(optimizer ='optimx', optCtrl=list(method='nlminb')))
+
+summary(modD)
+anova(modC, modD)
+```
+```{r}
+modE <- lmer(Goodlift ~ 
+             Sex + cBest3DeadliftKg  + cBodyweightKg + cTotalKg + Equipment + (cBodyweightKg + cTotalKg + Equipment|Name), REML = F, data = lift, control = lmerControl(optimizer ='optimx', optCtrl=list(method='nlminb')))
+
+summary(modE)
+anova(modD, modE)
+```
+
+```{r}
+modF <- lmer(Goodlift ~ 
+              AgeClass + Sex + cBest3DeadliftKg  + cBodyweightKg + cTotalKg + Equipment + (cBodyweightKg + cTotalKg + Equipment|Name), REML = F, data = lift, control = lmerControl(optimizer ='optimx', optCtrl=list(method='nlminb')))
+
+summary(modF)
+anova(modE, modF)
+```
+# Final Model 
+```{r}
+modFinal <- lmer(Goodlift ~ 
+              AgeClass +
+              Sex +
+              cBest3DeadliftKg +
+              cBodyweightKg +
+              cTotalKg +
+              Equipment +
+              cBodyweightKg:Sex +
+              BodyweightKg:AgeClass +
+              cTotalKg:Sex +
+              cTotalKg:AgeClass +
+              cBest3DeadliftKg:AgeClass + 
+              Equipment:Sex + 
+              Equipment:AgeClass + 
+              (cBodyweightKg + cTotalKg + Equipment|Name), REML = F, data = lift, control = lmerControl(optimizer ='optimx', optCtrl=list(method='nlminb')))
+
+summary(modFinal)
+
+
+
+```
+

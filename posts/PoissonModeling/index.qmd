@@ -1,0 +1,292 @@
+---
+title: "Poisson Regression Modeling"
+author: "Jack Fay"
+date: "2024-03-12"
+---
+
+```{r, include = FALSE}
+library(tidyverse)
+library(MASS)
+crab <- read_csv("data/crab.csv")
+crab$Color = as.factor(crab$Color)
+crab$Spine = as.factor(crab$Spine)
+```
+# Introduction 
+The goal of this project is to conduct exploratory analysis on the data set to determine useful predictors for a poisson regression model. Additionally, I will examine the Poisson model fit and any potential impacts caused by overdispersion. 
+
+#### Data
+Data are available from a study on horseshoe crabs. Female horseshoe crabs often have male crabs attached to a female's nest known as satellites. One objective of the study was to determine which characteristics of the female were associated with the number of satellites. Of particular interest is the relationship between the width of the female carapace and satellites.
+
+The data can be found in crab.csv. It includes:
+- NumStat = number of satellites
+- Width = carapace width (cm)
+- Weight = weight (kg)
+- Spine = spine condition (1 = both good, 2 = one worn or broken, 3 = both worn or broken)
+- Color = (2 = light medium, 3 = medium, 4 = dark medium, 5 = dark)
+
+
+
+# Part 1: Exploratory Data Analysis
+```{r}
+ggplot(crab, aes(x = Satellite)) + 
+  geom_histogram(binwidth = .25) + 
+  xlab("Number of Satellites") +
+  ylab("Count of Crabs")
+
+mean(crab$Satellite)
+var(crab$Satellite)
+```
+
+It seems that the mode count of satellites is zero. The variance of our response of carapace satellites is significantly higher than the mean which indicates we will likely have an issue with the mean = variance assumption.
+
+#### Exploring by Width
+
+```{r}
+sumStats <- crab |>
+  group_by(Width = ntile(Width, 15)) |> 
+  summarise(n = n(),
+            mnSatellite = mean(Satellite),
+            varSatellite = var(Satellite), 
+            logmnSatellite = log(Satellite)
+            )
+
+ggplot(sumStats, aes(x = Width, y = logmnSatellite)) +
+  geom_point() +
+  geom_smooth(method = "loess", size = 1.5) +
+  xlab("Width of the crab") +
+  ylab("Log of the empirical mean number of satellites") 
+
+```
+
+There does not appear to be much of a relationship between width of crab and the log mean number of satellites. The line is fairly flat but appears to be linear.
+
+#### Exploring by Width and Color
+
+```{r}
+sumStats <- crab |>
+  group_by(Width = ntile(Width, 17), Color) |> 
+  summarise(n = n(),
+            mnSatellite = mean(Satellite),
+            varSatellite = var(Satellite), 
+            logmnSatellite = log(Satellite)
+            )
+
+ggplot(sumStats, aes(x = Width, y = logmnSatellite, color = Color)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = FALSE) 
+```
+
+There seems to be a significant difference in the trends among the various colors. The log mean number of satellites seems to be different for different colors as the weight increases. None of the colors share a consistent trend throughout the data.
+
+#### Exploring by Width and Spine
+
+```{r}
+sumStats <- crab |>
+  group_by(Width = ntile(Width, 15), Spine) |> 
+  summarise(n = n(),
+            mnSatellite = mean(Satellite),
+            varSatellite = var(Satellite), 
+            logmnSatellite = log(Satellite)
+            )
+
+ggplot(sumStats, aes(x = Width, y = logmnSatellite, color = Spine)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = FALSE) 
+```
+
+It seems that the trends are very different when grouped by spine conditions. This indicates that there is likely an interaction between the width and the spine condition, in relation the the log mean number of satellites. I would infer that both spine condition and color play roles in the number of satellites.
+
+#### Exploring by Weight
+
+```{r}
+sumStats <- crab |>
+  group_by(Weight = ntile(Weight, 17)) |> 
+  summarise(n = n(),
+            mnSatellite = mean(Satellite),
+            varSatellite = var(Satellite), 
+            logmnSatellite = log(Satellite)
+            )
+
+ggplot(sumStats, aes(x = Weight, y = logmnSatellite)) +
+  geom_point() +
+  geom_smooth(method = "loess", size = 1.5) 
+
+```
+
+It seems that weight has a relatively flat and linear relationship with log mean number of satellites. It seems to follow a very similar trend to width, which leads me to believe that width and weight are highly correlated.
+
+#### Exploring by Weight and Color
+
+```{r}
+sumStats <- crab |>
+  group_by(Weight = ntile(Weight, 17), Color) |> 
+  summarise(n = n(),
+            mnSatellite = mean(Satellite),
+            varSatellite = var(Satellite), 
+            logmnSatellite = log(Satellite)
+            )
+
+ggplot(sumStats, aes(x = Weight, y = logmnSatellite, color = Color)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = FALSE) 
+```
+
+It seems that the intercepts are different for colors 1-4, but they share fairly similar trends. For dark color (5), there is a much more distinct trend that does not seem to be similar to the others. I think color should be used in the model based on our findings.
+
+### Exploring by Weight and Spine
+
+```{r}
+sumStats <- crab |>
+  group_by(Weight = ntile(Weight, 17), Spine) |> 
+  summarise(n = n(),
+            mnSatellite = mean(Satellite),
+            varSatellite = var(Satellite), 
+            logmnSatellite = log(Satellite)
+            )
+
+ggplot(sumStats, aes(x = Weight, y = logmnSatellite, color = Spine)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = FALSE) 
+```
+
+The trends appear to deviate from each other yet not a durastically as seen in the previous plots. There is likely a chance that spine will play a roll in predicted satellites, yet it is harder to see differences when we are examining the relationship by weight.
+
+#### Exploring relationship between Color and Spine
+
+```{r}
+ggplot(crab, aes(x=Color, y=Satellite, fill=Spine)) + 
+  geom_boxplot() 
+
+```
+
+It seems that there is no consistent pattern by color, as the number of satellites for each color varies by spine condition. This could suggest an interaction between the variables, yet we also have NA values for some spine conditions which could be problematic.
+
+#### Width vs weight
+
+```{r}
+ggplot(data = crab,
+       aes(x = Weight, y = Width))+
+  geom_point()
+  
+cor(crab$Weight, crab$Width)
+```
+
+It seems that Width and Weight have a positive linear relationship. Due to the high correlation between the two variables, I would not include weight in the model. Especially because we are specifically interested in the relationship between between the width of the female carapace and satellites.
+
+```{r}
+mod1 = glm(Satellite ~ Width , family= "poisson" , data=crab)
+summary(mod1)
+```
+
+```{r}
+mod2 = glm(Satellite ~ Width + Color, family= "poisson" , data=crab)
+summary(mod2)
+```
+
+Nested Likelihood Ratio Test X\^2 = 567.88-559.34 = 8.54 df = 3
+
+```{r}
+pchisq(8.54, df = 3, lower.tail = FALSE)
+```
+
+0.036 Evidence that color improves the model.
+
+```{r}
+mod3 = glm(Satellite ~ Width + Color + Spine  , family= "poisson" , data=crab)
+summary(mod3)
+```
+
+Nested Likelihood ratio test against mod1 X\^2 = 567.88-558.63 = 9.25 df = 5
+
+```{r}
+pchisq(9.25, 5, lower.tail = FALSE)
+```
+
+With a p-value of 0.099, this model is not better than one that just uses width.
+
+Nested Likelihood ratio test against mod2 X\^2 = 559.34-558.63 = 0.71 df = 2
+
+```{r}
+pchisq(0.71, 2, lower.tail = FALSE)
+```
+
+With a p-value of 0.71, there is no evidence that adding the spine term improves the model.
+
+```{r}
+# FINAL MODEL
+mod4 = glm(Satellite ~ Color + Width + Width:Color, family= "poisson" , data=crab)
+summary(mod4)
+AIC(mod4)
+```
+
+Nested Likelihood ratio test against mod2 X\^2 = 559.34-547.57 = 11.77 df = 3
+
+```{r}
+pchisq(11.77, df = 3, lower.tail = FALSE)
+```
+
+With a p-value of 0.008, there is strong evidence that the interaction term with color improves the model.
+
+567.88-547.57 = 20.31 df = 6
+
+```{r}
+pchisq(20.31, 6, lower.tail = FALSE)
+```
+
+With a p-value of 0.002, there is clear evidence that this model with the color interaction term is better than just using width.
+
+# Part 2
+
+#### 1.
+
+```{r}
+summary(mod4)
+```
+
+#### 2.
+
+t.s. = 632.79-547.57 = 85.22 df = 7
+
+```{r}
+pchisq(85.22, 7, lower.tail = FALSE)
+```
+
+There is clear evidence that the model is useful(X\^2 = 85.22, df = 7, p-value = 0).
+
+#### 3.
+
+```{r}
+exp(-0.08057)-1 
+```
+
+A one centimeter increase in carapace width is associated with a 7.7% increase in the mean number of satellites. The carapace width term in the model is not significant, however, it is necessary for the model. Though width itself will not significantly impact the predicted mean number of satellites, the interaction terms play an important role in adjusting for color.
+
+#### 4.
+
+```{r}
+pchisq(547.57, 165, lower.tail = FALSE)
+```
+
+There is clear evidence that the model has significant lack of fit (X\^2 = 547.57, p-value = 0).
+
+# Part 3
+
+```{r}
+DHARMa::testDispersion(mod4)
+```
+
+```{r}
+mod5 <- glm.nb(Satellite ~ Color + Width + Width:Color, data = crab)
+summary(mod5)
+```
+
+There certainly was a significant problem with overdispersion in the model, as indicated by both the lack of fit test and the DHARMa package 'testDispersion' method. I used a negative binomial model to adjust for this overdispersion, which appeared to work effectively in that regard. While the adjustment reduced the overdispersion, the significance of all predictors dropped substantially. Despite that, there is still evidence that the model is useful (X\^2 = 22.82, p-value = 0.0018).
+
+Overall Model Utility
+
+```{r}
+ts <- 219.74 - 196.92
+df <- 7 
+
+pchisq(ts, df, lower.tail = FALSE)
+```
