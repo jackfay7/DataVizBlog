@@ -6,6 +6,7 @@ date: "2024-03-8"
 ```{r, include = FALSE}
 # packages 
 library(lme4)
+library(Matrix)
 library(lmerTest)
 library(tidyverse)
 library(ggplot2)

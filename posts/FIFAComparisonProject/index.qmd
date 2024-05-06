@@ -17,7 +17,7 @@ library(tidyverse)
 library(shiny)
 library(plotly)
 library(shinythemes)
-fifa_full <- read_csv("data/fifa_15_23.csv")
+fifa_full <- read_csv("posts/FIFAComparisonProject/data/fifa_15_23.csv")
 ```
 
 ##### Line Graph Panel
@@ -128,7 +128,7 @@ library(shiny)
 library(plotly)
 library(shinythemes)
 
-fifa_full <- read_csv("data/fifa_15_23.csv")
+fifa_full <- read_csv("posts/FIFAComparisonProject/data/fifa_15_23.csv")
 variable_choices <- names(fifa_full)[c(6, 19:24)]
 
 ui <- fluidPage(
