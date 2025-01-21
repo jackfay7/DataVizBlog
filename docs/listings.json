@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/TimeSeriesAnalysis/index.html",
       "/posts/FIFAComparisonProject/index.html",
       "/posts/PoissonModeling/index.html",
       "/posts/MultiLevelModeling/index.html",
