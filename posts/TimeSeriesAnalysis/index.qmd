@@ -1,0 +1,155 @@
+---
+title: "Jcrew Revenue Time Series Analysis"
+author: "Jack Fay"
+date: "2025-01-21"
+---
+
+```{r}
+library(readr)
+library(forecast)
+library(tidyverse)
+jcrew <- read_csv("data/jcrew.csv")
+jcrew$t<-c(1:length(jcrew$Revenue))
+```
+The data is quarterly revenue reports (in millions of dollars) for J. Crew from Q1 2003 through Q1 of 2013. There are 41 observations and the data came from the DASL website.
+
+https://dasl.datadescription.com/
+
+## Plotting Original Series
+```{r}
+jcrewts<-ts(jcrew$Revenue, start = 2003, freq = 4 )
+plot(jcrewts)
+```
+
+## Examine Sample Autocorrelations 
+```{r}
+acf(jcrewts)
+```
+
+In the ACF plot we can see a gradual decay in the lags. There are significant lags at lags 1,2,
+and 3. Note that lag 4 is close to being significant with a t-statistic of 1.98.
+
+## Seasonal Means + Linear Trend Model 
+```{r}
+Lin_mod<-lm(Revenue ~ t+factor(Quarter), data = jcrew)
+summary(Lin_mod)
+```
+
+```{r}
+anova(Lin_mod)
+```
+```{r}
+ts.plot(jcrewts, ts(Lin_mod$fitted.values, start = 2003, freq = 4),
+col = c("blue","red"))
+```
+```{r}
+acf(Lin_mod$residuals)
+```
+
+The acf plot of the residuals shows a significant spike at the first lag which may be a concern.
+
+Assessment of effectiveness $\sigma = 22.18$
+
+${R}^2 = 97.25$
+
+SSE = 17718
+
+MSE = 492
+
+
+## Cosine + Linear Trend 
+```{r}
+Cos_mod<-lm(Revenue ~ I(cos((2*pi*t)/4))+I(sin((2*pi*t)/4))+t, data = jcrew)
+summary(Cos_mod)
+```
+
+```{r}
+anova(Cos_mod)
+```
+
+```{r}
+ts.plot(jcrewts, ts(Cos_mod$fitted.values, start = 2003, freq = 4),
+col = c("blue","red"))
+```
+
+```{r}
+acf(Cos_mod$residuals)
+```
+The acf plot of the residuals shows a significant spike at lag 2 which may be a concern.
+Assessment of effectiveness $\sigma =  25.67$
+
+${R}^2 = 96.22%$
+
+SSE = 24381
+
+MSE = 659
+
+
+## Seasonal Arima
+```{r}
+acf(diff(jcrewts))
+```
+
+```{r}
+acf(diff(jcrewts, lag = 4))
+```
+
+Due to the decreasing lags in the ACF plot a regular difference seems like it would be beneficial.When a regular difference is added to the time series, there is still significant lags at the 4S lags. This suggests a seasonal difference would also be beneficial.
+
+```{r}
+acf(diff(diff(jcrewts, lag = 4)))
+```
+
+```{r}
+pacf(diff(diff(jcrewts, lag = 4)))
+```
+
+With both differences applied, there is still a significant lag at lag 4 in the ACF and PACF plots. Our initial guess for the ARIMA due to this information is an ARIMA(0,1,0)X(1,1,0) or an ARIMA(0,1,0)X(0,1,1).
+
+```{r}
+Arima_mod1<-Arima(jcrewts, order = c(0,1,0), seasonal = c(1,1,0))
+summary(Arima_mod1)
+```
+
+```{r}
+Arima_mod2<-Arima(jcrewts, order = c(0,1,0), seasonal = c(0,1,1))
+summary(Arima_mod2)
+```
+Due to the smaller sigma squared value in the second ARIMA model (402.3 compared to 428.6) this model would be better for our data.
+
+```{r}
+acf(Arima_mod2$residuals)
+```
+
+The acf plot of the residuals for our ARIMA model confirms that the residuals are independent and there are no significant lags.
+
+```{r}
+ts.plot(jcrewts,Arima_mod2$fitted, col = c("blue", "red"))
+```
+
+```{r}
+SSE<-sum(Arima_mod2$residuals^2)
+SSZ<-sum((jcrewts-mean(jcrewts))^2)
+1-(SSE/SSZ)
+```
+
+Assessment of effectiveness $\sigma = 20.06$
+
+${R}^2 = 97.81$
+
+SSE = 14079.87
+
+## Comparison 
+
+The ARIMA(0,1,0)X(0,1,1) works best for our J. Crew data. It has the lowest $\sigma$ (20.06) and MSE(402.3), as well as the highest R-squared value (97.81). It also only has 1 parameter, making it the model with the lowest number of parameters of our three models. This is also the favorable model because the ACF plot of the residuals looks like white noise, which is not the case for the seasonal means or cosine models.
+
+## Future Values 
+
+```{r}
+plot(forecast(Arima_mod2, 4, level = 0.95),
+include = 16, shaded = FALSE, showgap = FALSE,
+xlab = "Year", ylab = "Revenue (in millions)")
+```
+
+
+
