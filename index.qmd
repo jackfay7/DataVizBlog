@@ -4,11 +4,12 @@ listing:
   contents: posts
   sort: "date desc"
   type: default
+  exclude:
+    - path: posts/FIFAComparisonProject
+    - path: posts/TimeSeriesAnalysis
   categories: true
   sort-ui: false
   filter-ui: false
-  filter:
-    categories: "!hidden"
 page-layout: full
 title-block-banner: true
 ---
