@@ -2,6 +2,7 @@
 title: "FIFA Comparison Project"
 author: "Jack Fay"
 date: "2024-05-6"
+categories: [hidden]
 ---
 ### Introduction 
 The dataset for this project comes from Kaggle and contains a wide range of FIFA player ratings and attributes from 2015-2023 Career Mode. On a FIFA card, each player has an overall rating accompanied by six central statistics: pace, shooting, passing, dribbling, defense, and physical. Aside from player statistics, the dataset also includes demographic information such as the nationality, league, and team of the players. Initially, the data included all players, male and female, yet to allow for my ShinyApp to run with better speed I used a subset of the data that only included male players with ratings of 80 and higher. The final subset contains 24 variables and 232,116 observations. The data set affords many avenues of comparison among players via demographic information and it allows for multiple comparisons of the same players across different seasons. From a longitudinal standpoint, I am particularly interested in comparing specific player attributes over the course of their careers in an attempt to see how their perceived skills in that area have changed relative to other players. Additionally, I aim to compare the central six attributes of the players within specific seasons to see how players differ in their strong suits despite sharing the same overall rating. The central goal of this project is to provide a tool for player comparison where users can select their desired players and explore their own questions of interest. 

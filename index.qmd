@@ -7,9 +7,8 @@ listing:
   categories: true
   sort-ui: false
   filter-ui: false
-  exclude: 
-    - posts/FIFAComparisonProject/index.qmd
-    - posts/TimeSeriesAnalysis/index.qmd
+  filter:
+    categories: "!hidden"
 page-layout: full
 title-block-banner: true
 ---

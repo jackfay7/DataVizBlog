@@ -2,6 +2,7 @@
 title: "Jcrew Revenue Time Series Analysis"
 author: "Jack Fay"
 date: "2025-01-21"
+categories: [hidden]
 ---
 
 ```{r}
